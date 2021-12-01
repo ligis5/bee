@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import Canvas from "./canvas/Canvas";
+import "./App.css";
+import { useRef, useEffect, useState } from "react";
 
 function App() {
+  const appRef = useRef();
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (appRef) {
+      setLoaded(true);
+    }
+    return () => setLoaded(false);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
+    <div className="App" ref={appRef}>
+      {loaded ? (
+        <Canvas
+          width={appRef.current.clientWidth}
+          height={appRef.current.clientHeight}
+        />
+      ) : (
+        <></>
+      )}
+      <div>
+        Icons made by{" "}
+        <a href="https://www.freepik.com" title="Freepik">
+          Freepik
+        </a>{" "}
+        from{" "}
+        <a href="https://www.flaticon.com/" title="Flaticon">
+          www.flaticon.com
         </a>
-      </header>
+      </div>
     </div>
   );
 }
