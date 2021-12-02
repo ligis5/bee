@@ -1,14 +1,17 @@
 import beeImg from "./bee.png";
 import beeLeftImg from "./bee-left.png";
 
-function Bee(ctx, width, height) {
-  this.currentPos = { x: width / 5, y: height / 3 };
+function Bee(ctx, width, height, parent) {
+  this.width = width;
+  this.height = height;
+  this.currentPos = { x: this.width / 5, y: this.height / 3 };
   this.beeWidth = 32;
   this.beeHeight = 32;
   this.velocity = { x: 0.1, y: 0 };
   this.acc = { x: 0, y: 0 };
-  this.direction = { x: Math.random() * width, y: Math.random() * height };
+  this.direction = { x: Math.random() * this.width, y: Math.random() * this.height };
   this.mouse = { x: 0, y: 0 };
+  let mouseInside = false;
 
   let loadedR = false;
   let loadedL = false;
@@ -25,28 +28,44 @@ function Bee(ctx, width, height) {
 
   this.createBee = (x, y) => {
     if (this.velocity.x >= 0 && loadedR) {
-      ctx.clearRect(0, 0, width, height, this.bee);
+      ctx.clearRect(0, 0, this.width, this.height, this.bee);
       ctx.drawImage(img, x, y, this.beeHeight, this.beeHeight);
     }
     if (this.velocity.x < 0 && loadedL) {
-      ctx.clearRect(0, 0, width, height, this.bee);
+      ctx.clearRect(0, 0, this.width, this.height, this.bee);
       ctx.drawImage(imgLeft, x, y, this.beeHeight, this.beeHeight);
     }
   };
 
   window.addEventListener("mousemove", (e) => {
     this.mouse = { x: e.clientX, y: e.clientY };
+
+  });
+  parent.addEventListener("mouseenter", (e) => {
+    mouseInside = true;
+    e.stopPropagation()
+  });
+  parent.addEventListener("mouseleave", (e) => {
+    mouseInside = false;
+    e.stopPropagation()
   });
 
-  let goTo = (x, y) => {
+  let goTo = (x, y, name) => {
     let v = {
       x: this.currentPos.x - x,
       y: this.currentPos.y - y,
     };
     let mag = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
     let normalize = { x: v.x / mag, y: v.y / mag };
-    this.acc.x -= normalize.x;
+    
+    if(name == "mouse"){
+      this.acc.x -= normalize.x * 10;
+      this.acc.y -= normalize.y * 10;
+    }
+    if(name == 'dir'){
+      this.acc.x -= normalize.x;
     this.acc.y -= normalize.y;
+    }
     this.velocity.x += this.acc.x / 50;
     this.velocity.y += this.acc.y / 50;
     this.currentPos.x += this.velocity.x;
@@ -55,16 +74,16 @@ function Bee(ctx, width, height) {
     this.acc.x = 0;
     this.acc.y = 0;
 
-    if (this.currentPos.x >= width - this.beeWidth) {
-      this.currentPos.x = width - this.beeWidth;
+    if (this.currentPos.x >= this.width - this.beeWidth) {
+      this.currentPos.x = this.width - this.beeWidth;
       this.velocity.x = 0;
     }
     if (this.currentPos.x <= 0) {
       this.currentPos.x = 0;
       this.velocity.x = 0;
     }
-    if (this.currentPos.y >= height - this.beeHeight) {
-      this.currentPos.y = height - this.beeHeight;
+    if (this.currentPos.y >= this.height - this.beeHeight) {
+      this.currentPos.y = this.height - this.beeHeight;
       this.velocity.y = 0;
     }
     if (this.currentPos.y <= 0) {
@@ -84,8 +103,8 @@ function Bee(ctx, width, height) {
     };
     let mouseMag = Math.sqrt(Math.pow(mouseV.x, 2) + Math.pow(mouseV.y, 2));
 
-    if (mouseMag < 500) {
-      goTo(this.mouse.x, this.mouse.y);
+    if (mouseMag < 200 && mouseInside) {
+      goTo(this.mouse.x, this.mouse.y, "mouse");
     } else {
       let dirV = {
         x: this.currentPos.x - this.direction.x,
@@ -94,11 +113,11 @@ function Bee(ctx, width, height) {
       let dirMag = Math.sqrt(Math.pow(dirV.x, 2) + Math.pow(dirV.y, 2));
       if (dirMag <= 100) {
         this.direction = {
-          x: Math.random() * width,
-          y: Math.random() * height,
+          x: Math.random() * this.width,
+          y: Math.random() * this.height,
         };
       }
-      goTo(this.direction.x, this.direction.y);
+      goTo(this.direction.x, this.direction.y, 'dir');
     }
   };
 }

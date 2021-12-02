@@ -11,7 +11,7 @@ function App() {
       setLoaded(true);
     }
     return () => setLoaded(false);
-  }, []);
+  }, [appRef]);
 
   return (
     <div className="App" ref={appRef}>
@@ -19,20 +19,11 @@ function App() {
         <Canvas
           width={appRef.current.clientWidth}
           height={appRef.current.clientHeight}
+          parent={appRef.current}
         />
       ) : (
         <></>
       )}
-      <div>
-        Icons made by{" "}
-        <a href="https://www.freepik.com" title="Freepik">
-          Freepik
-        </a>{" "}
-        from{" "}
-        <a href="https://www.flaticon.com/" title="Flaticon">
-          www.flaticon.com
-        </a>
-      </div>
     </div>
   );
 }
